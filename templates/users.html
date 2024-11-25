@@ -1,0 +1,92 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h4 class="mb-0">Quản lý người dùng</h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Tên đăng nhập</th>
+                        <th scope="col">Họ và tên</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Quyền</th>
+                        <th scope="col">Ngày tạo</th>
+                        <th scope="col">Trạng thái</th>
+                        {% if current_user.role.role_name == 'Admin' %}
+                        <th scope="col">Thao tác</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.name }}</td>
+                        <td>{{ user.email }}</td>
+                        <td><span class="badge bg-info">{{ user.role.role_name }}</span></td>
+                        <td>{{ user.created_at.strftime('%d/%m/%Y') }}</td>
+                        <td>
+                            <span class="badge {% if user.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                                {{ 'Hoạt động' if user.is_active else 'Đã khóa' }}
+                            </span>
+                        </td>
+                        {% if current_user.role.role_name == 'Admin' %}
+                        <td>
+                            <div class="btn-group" role="group">
+                                <button type="button" 
+                                        class="btn btn-sm btn-outline-danger" 
+                                        onclick="handleDeleteUser({{ user.id | safe }})"
+                                        {% if user.id == current_user.id %}disabled{% endif %}
+                                        title="Xóa người dùng">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+const handleDeleteUser = (userId) => {
+    if (!userId) {
+        alert('ID người dùng không hợp lệ.');
+        return;
+    }
+
+    const confirmDelete = confirm('Bạn có chắc chắn muốn xóa người dùng này?');
+    if (!confirmDelete) return;
+
+    const deleteUrl = "{{ url_for('main.delete_user', id=0) }}".replace('0', userId);
+    
+    fetch(deleteUrl, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.reload();
+        } else {
+            throw new Error(data.message || 'Có lỗi xảy ra khi xóa người dùng');
+        }
+    })
+    .catch(error => {
+        console.error('Lỗi:', error);
+        alert(error.message || 'Có lỗi xảy ra khi xóa người dùng');
+    });
+};
+</script>
+{% endblock %}

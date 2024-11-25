@@ -1,0 +1,66 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h3 class="mb-0">{% if user %}Cập Nhật Người Dùng{% else %}Thêm Người Dùng Mới{% endif %}</h3>
+                <a href="{{ url_for('users') }}" class="btn btn-light">
+                    <i class="fas fa-arrow-left"></i> Quay lại
+                </a>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Họ và Tên</label>
+                            {{ form.name(class="form-control") }}
+                            {% if form.name.errors %}
+                                {% for error in form.name.errors %}
+                                    <small class="text-danger">{{ error }}</small>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Email</label>
+                            {{ form.email(class="form-control") }}
+                            {% if form.email.errors %}
+                                {% for error in form.email.errors %}
+                                    <small class="text-danger">{{ error }}</small>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Mật khẩu {% if user %}(để trống nếu không thay đổi){% endif %}</label>
+                            {{ form.password(class="form-control") }}
+                            {% if form.password.errors %}
+                                {% for error in form.password.errors %}
+                                    <small class="text-danger">{{ error }}</small>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Vai trò</label>
+                            {{ form.role_id(class="form-select") }}
+                            {% if form.role_id.errors %}
+                                {% for error in form.role_id.errors %}
+                                    <small class="text-danger">{{ error }}</small>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> 
+                            {% if user %}Cập Nhật{% else %}Thêm Mới{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,91 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h2>Dashboard</h2>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Thống kê -->
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Tổng số người dùng</h5>
+                <p class="card-text display-4">{{ stats.total_users }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Người dùng mới</h5>
+                <p class="card-text display-4">{{ stats.new_users }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Admin</h5>
+                <p class="card-text display-4">{{ stats.admin_count }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Hoạt động gần đây -->
+    <div class="col-md-8 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Hoạt động gần đây</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Người dùng</th>
+                                <th>Hoạt động</th>
+                                <th>Thời gian</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for activity in recent_activities %}
+                            <tr>
+                                <td>{{ activity.user.username }}</td>
+                                <td>{{ activity.action }}</td>
+                                <td>{{ activity.timestamp.strftime('%d/%m/%Y %H:%M') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Người dùng mới -->
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Người dùng mới</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    {% for user in new_users %}
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ user.username }}</h6>
+                            <small>{{ user.created_at.strftime('%d/%m/%Y') }}</small>
+                        </div>
+                        <small>{{ user.email }}</small>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

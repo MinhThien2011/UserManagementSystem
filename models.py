@@ -1,0 +1,38 @@
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import UserMixin
+from datetime import datetime
+
+db = SQLAlchemy()
+
+class Role(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    role_name = db.Column(db.String(50), unique=True, nullable=False)
+    users = db.relationship('User', backref='role', lazy=True)
+
+    def __repr__(self):
+        return f'<Role {self.role_name}>'
+
+class User(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password = db.Column(db.String(200), nullable=False)
+    name = db.Column(db.String(100))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    last_login = db.Column(db.DateTime)
+    is_active = db.Column(db.Boolean, default=True)
+    role_id = db.Column(db.Integer, db.ForeignKey('role.id'), nullable=False)
+    activities = db.relationship('UserActivity', backref='user', lazy=True)
+
+    def __repr__(self):
+        return f'<User {self.username}>'
+
+class UserActivity(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    action = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.String(200))
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<UserActivity {self.action}>'

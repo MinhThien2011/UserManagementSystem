@@ -1,0 +1,157 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Quản lý quyền</h5>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addRoleModal">
+            <i class="fas fa-plus"></i> Thêm quyền
+        </button>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tên quyền</th>
+                        <th>Số người dùng</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for role in roles %}
+                    <tr>
+                        <td>{{ role.id }}</td>
+                        <td>{{ role.role_name }}</td>
+                        <td>{{ role.users|length }}</td>
+                        <td>
+                            <button class="btn btn-sm btn-warning" data-role-id="{{ role.id }}" onclick="editRole(this.dataset.roleId)">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" data-role-id="{{ role.id }}" onclick="deleteRole(this.dataset.roleId)">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal thêm quyền -->
+<div class="modal fade" id="addRoleModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm quyền mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Tên quyền</label>
+                    <input type="text" class="form-control" id="newRoleName">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" onclick="addRole()">Thêm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal sửa quyền -->
+<div class="modal fade" id="editRoleModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Sửa quyền</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editRoleId">
+                <div class="mb-3">
+                    <label class="form-label">Tên quyền</label>
+                    <input type="text" class="form-control" id="editRoleName">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" onclick="updateRole()">Cập nhật</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function addRole() {
+    const roleName = document.getElementById('newRoleName').value;
+    fetch('{{ url_for("main.add_role") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ role_name: roleName })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.message || 'Có lỗi xảy ra');
+        }
+    });
+}
+
+function editRole(roleId) {
+    fetch(`{{ url_for("main.get_role", id=0) }}`.replace('0', roleId))
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('editRoleId').value = data.id;
+        document.getElementById('editRoleName').value = data.role_name;
+        new bootstrap.Modal(document.getElementById('editRoleModal')).show();
+    });
+}
+
+function updateRole() {
+    const roleId = document.getElementById('editRoleId').value;
+    const roleName = document.getElementById('editRoleName').value;
+    fetch(`{{ url_for("main.update_role", id=0) }}`.replace('0', roleId), {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ role_name: roleName })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.message || 'Có lỗi xảy ra');
+        }
+    });
+}
+
+function deleteRole(roleId) {
+    if (confirm('Bạn có chắc chắn muốn xóa quyền này?')) {
+        fetch(`{{ url_for("main.delete_role", id=0) }}`.replace('0', roleId), {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.message || 'Có lỗi xảy ra');
+            }
+        });
+    }
+}
+</script>
+{% endblock %}
