@@ -1,0 +1,64 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user"></i> Thông tin cá nhân
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 text-center">
+                            <img src="{{ current_user.avatar or url_for('static', filename='images/default-avatar.png') }}" 
+                                 class="rounded-circle mb-3" width="150" height="150">
+                        </div>
+                        <div class="col-md-9">
+                            <h4>{{ current_user.name }}</h4>
+                            <p><i class="fas fa-envelope me-2"></i>{{ current_user.email }}</p>
+                            <p><i class="fas fa-user-tag me-2"></i>{{ current_user.role.role_name }}</p>
+                            <p><i class="fas fa-clock me-2"></i>Tham gia từ: {{ current_user.created_at.strftime('%d/%m/%Y') }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-history"></i> Hoạt động gần đây
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Thời gian</th>
+                                    <th>Hành động</th>
+                                    <th>Mô tả</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for activity in activities %}
+                                <tr>
+                                    <td>{{ activity.timestamp.strftime('%d/%m/%Y %H:%M') }}</td>
+                                    <td>{{ activity.action }}</td>
+                                    <td>{{ activity.description }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

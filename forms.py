@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, EmailField
+from wtforms import StringField, PasswordField, SubmitField, EmailField, SelectField, SelectMultipleField
 from wtforms.validators import DataRequired, Email, Length, EqualTo, ValidationError
 from models import User
 
@@ -31,4 +31,14 @@ class UserForm(FlaskForm):
     password = PasswordField('Mật khẩu mới', validators=[Length(min=6)])
     confirm_password = PasswordField('Xác nhận mật khẩu mới', 
         validators=[EqualTo('password')])
+    submit = SubmitField('Cập nhật')
+
+class UserPermissionForm(FlaskForm):
+    role = SelectField('Vai trò', coerce=int)
+    permissions = SelectMultipleField('Quyền hạn', choices=[
+        ('view_users', 'Xem danh sách người dùng'),
+        ('edit_users', 'Chỉnh sửa người dùng'),
+        ('delete_users', 'Xóa người dùng'),
+        ('manage_roles', 'Quản lý vai trò')
+    ])
     submit = SubmitField('Cập nhật')

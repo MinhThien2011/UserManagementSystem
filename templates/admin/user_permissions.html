@@ -1,0 +1,41 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Quản lý quyền - {{ user.username }}</h4>
+        <a href="{{ url_for('main.users') }}" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left"></i> Quay lại
+        </a>
+    </div>
+    <div class="card-body">
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <div class="mb-3">
+                {{ form.role.label(class="form-label") }}
+                {{ form.role(class="form-select") }}
+            </div>
+            
+            <div class="mb-3">
+                {{ form.permissions.label(class="form-label") }}
+                <div class="permissions-grid">
+                    {% for value, label in form.permissions.choices %}
+                    <div class="form-check">
+                        <input type="checkbox" 
+                               name="permissions" 
+                               value="{{ value }}"
+                               class="form-check-input"
+                               id="perm_{{ value }}"
+                               {% if value in form.permissions.data %}checked{% endif %}>
+                        <label class="form-check-label" for="perm_{{ value }}">
+                            {{ label }}
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            {{ form.submit(class="btn btn-primary") }}
+        </form>
+    </div>
+</div>
+{% endblock %} 

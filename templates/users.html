@@ -1,75 +1,187 @@
 {% extends "layout.html" %}
 {% block content %}
-<div class="card">
-    <div class="card-header">
-        <h4 class="mb-0">Quản lý người dùng</h4>
+<div class="container-fluid">
+    <!-- Header với thanh tìm kiếm và nút thêm mới -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h4><i class="fas fa-users"></i> Quản lý người dùng</h4>
+        </div>
+        <div class="col-md-6">
+            <div class="d-flex justify-content-end">
+                <div class="input-group w-50 me-2">
+                    <input type="text" class="form-control" placeholder="Tìm kiếm người dùng...">
+                    <button class="btn btn-outline-secondary" type="button">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                    <i class="fas fa-user-plus"></i> Thêm mới
+                </button>
+            </div>
+        </div>
     </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead class="table-light">
-                    <tr>
-                        <th scope="col">ID</th>
-                        <th scope="col">Tên đăng nhập</th>
-                        <th scope="col">Họ và tên</th>
-                        <th scope="col">Email</th>
-                        <th scope="col">Quyền</th>
-                        <th scope="col">Ngày tạo</th>
-                        <th scope="col">Trạng thái</th>
-                        {% if current_user.role.role_name == 'Admin' %}
-                        <th scope="col">Thao tác</th>
-                        {% endif %}
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for user in users %}
-                    <tr>
-                        <td>{{ user.id }}</td>
-                        <td>{{ user.username }}</td>
-                        <td>{{ user.name }}</td>
-                        <td>{{ user.email }}</td>
-                        <td><span class="badge bg-info">{{ user.role.role_name }}</span></td>
-                        <td>{{ user.created_at.strftime('%d/%m/%Y') }}</td>
-                        <td>
-                            <span class="badge {% if user.is_active %}bg-success{% else %}bg-danger{% endif %}">
-                                {{ 'Hoạt động' if user.is_active else 'Đã khóa' }}
-                            </span>
-                        </td>
-                        {% if current_user.role.role_name == 'Admin' %}
-                        <td>
-                            <div class="btn-group" role="group">
-                                <button type="button" 
-                                        class="btn btn-sm btn-outline-danger" 
-                                        onclick="handleDeleteUser({{ user.id | safe }})"
-                                        {% if user.id == current_user.id %}disabled{% endif %}
-                                        title="Xóa người dùng">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </td>
-                        {% endif %}
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+
+    <!-- Card chứa bảng users -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th><i class="fas fa-hashtag"></i> ID</th>
+                            <th><i class="fas fa-user"></i> Tên đăng nhập</th>
+                            <th><i class="fas fa-id-card"></i> Họ và tên</th>
+                            <th><i class="fas fa-envelope"></i> Email</th>
+                            <th><i class="fas fa-user-tag"></i> Vai trò</th>
+                            <th><i class="fas fa-calendar-alt"></i> Ngày tạo</th>
+                            <th><i class="fas fa-toggle-on"></i> Trạng thái</th>
+                            {% if current_user.role.role_name == 'Admin' %}
+                            <th><i class="fas fa-cogs"></i> Thao tác</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>{{ user.id }}</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <img src="{{ user.avatar or url_for('static', filename='images/default-avatar.png') }}" 
+                                         class="rounded-circle me-2" 
+                                         width="32" height="32">
+                                    {{ user.username }}
+                                </div>
+                            </td>
+                            <td>{{ user.name }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>
+                                <span class="badge bg-{{ 'primary' if user.role.role_name == 'Admin' else 'info' }}">
+                                    {{ user.role.role_name }}
+                                </span>
+                            </td>
+                            <td>{{ user.created_at.strftime('%d/%m/%Y') }}</td>
+                            <td>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" 
+                                           {{ 'checked' if user.is_active else '' }}
+                                           onchange="toggleUserStatus('{{ user.id }}', this)"
+                                           {% if user.id == current_user.id %}disabled{% endif %}>
+                                </div>
+                            </td>
+                            {% if current_user.role.role_name == 'Admin' %}
+                            <td>
+                                <div class="btn-group">
+                                    <button class="btn btn-sm btn-outline-primary" 
+                                            onclick="viewUserDetails('{{ user.id }}')"
+                                            title="Xem chi tiết">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <a href="{{ url_for('main.manage_user_permissions', id=user.id) }}" 
+                                       class="btn btn-sm btn-outline-info"
+                                       title="Phân quyền">
+                                        <i class="fas fa-key"></i>
+                                    </a>
+                                    <button class="btn btn-sm btn-outline-danger" 
+                                            onclick="handleDeleteUser('{{ user.id }}')"
+                                            {% if user.id == current_user.id %}disabled{% endif %}
+                                            title="Xóa người dùng">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal xem chi tiết người dùng -->
+    <div class="modal fade" id="userDetailsModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Chi tiết người dùng</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-3">
+                        <img id="userAvatar" src="" class="rounded-circle" width="100" height="100">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label"><i class="fas fa-user"></i> Tên đăng nhập</label>
+                            <input type="text" class="form-control" id="detailUsername" readonly>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label"><i class="fas fa-envelope"></i> Email</label>
+                            <input type="email" class="form-control" id="detailEmail" readonly>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label"><i class="fas fa-phone"></i> Số điện thoại</label>
+                            <input type="text" class="form-control" id="detailPhone" readonly>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label"><i class="fas fa-calendar"></i> Ngày tạo</label>
+                            <input type="text" class="form-control" id="detailCreatedAt" readonly>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label"><i class="fas fa-map-marker-alt"></i> Địa chỉ</label>
+                        <input type="text" class="form-control" id="detailAddress" readonly>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
-const handleDeleteUser = (userId) => {
-    if (!userId) {
-        alert('ID người dùng không hợp lệ.');
-        return;
-    }
+// Xử lý xóa người dùng
+function handleDeleteUser(userId) {
+    Swal.fire({
+        title: 'Xác nhận xóa?',
+        text: "Bạn không thể hoàn tác hành động này!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Xóa',
+        cancelButtonText: 'Hủy'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`/users/${userId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire('Đã xóa!', 'Người dùng đã được xóa thành công.', 'success')
+                    .then(() => window.location.reload());
+                } else {
+                    Swal.fire('Lỗi!', data.message || 'Có lỗi xảy ra khi xóa người dùng.', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire('Lỗi!', 'Có lỗi xảy ra khi xóa người dùng.', 'error');
+            });
+        }
+    });
+}
 
-    const confirmDelete = confirm('Bạn có chắc chắn muốn xóa người dùng này?');
-    if (!confirmDelete) return;
-
-    const deleteUrl = "{{ url_for('main.delete_user', id=0) }}".replace('0', userId);
-    
-    fetch(deleteUrl, {
-        method: 'DELETE',
+// Xử lý toggle trạng thái người dùng
+function toggleUserStatus(userId, element) {
+    fetch(`/users/${userId}/toggle-status`, {
+        method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'X-Requested-With': 'XMLHttpRequest'
@@ -77,16 +189,36 @@ const handleDeleteUser = (userId) => {
     })
     .then(response => response.json())
     .then(data => {
-        if (data.success) {
-            window.location.reload();
-        } else {
-            throw new Error(data.message || 'Có lỗi xảy ra khi xóa người dùng');
+        if (!data.success) {
+            element.checked = !element.checked;
+            Swal.fire('Lỗi!', data.message, 'error');
         }
     })
     .catch(error => {
-        console.error('Lỗi:', error);
-        alert(error.message || 'Có lỗi xảy ra khi xóa người dùng');
+        console.error('Error:', error);
+        element.checked = !element.checked;
+        Swal.fire('Lỗi!', 'Không thể thay đổi trạng thái người dùng.', 'error');
     });
-};
+}
+
+// Xem chi tiết người dùng
+function viewUserDetails(userId) {
+    fetch(`/users/${userId}/details`)
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('userAvatar').src = data.avatar || '/static/images/default-avatar.png';
+        document.getElementById('detailUsername').value = data.username;
+        document.getElementById('detailEmail').value = data.email;
+        document.getElementById('detailPhone').value = data.phone || 'Chưa cập nhật';
+        document.getElementById('detailAddress').value = data.address || 'Chưa cập nhật';
+        document.getElementById('detailCreatedAt').value = new Date(data.created_at).toLocaleDateString('vi-VN');
+        
+        new bootstrap.Modal(document.getElementById('userDetailsModal')).show();
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire('Lỗi!', 'Không thể tải thông tin người dùng.', 'error');
+    });
+}
 </script>
 {% endblock %}

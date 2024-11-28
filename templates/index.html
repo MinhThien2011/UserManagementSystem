@@ -2,90 +2,105 @@
 {% block content %}
 <div class="container">
     {% if current_user.is_authenticated %}
-        <div class="row mb-4">
-            <div class="col-md-12">
-                <h2>Chào mừng, {{ current_user.name }}!</h2>
-            </div>
-        </div>
-        
-        <div class="row">
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Quản lý tài khoản</h5>
-                        <p class="card-text">Cập nhật thông tin cá nhân và mật khẩu của bạn.</p>
-                        <a href="{{ url_for('main.profile') }}" class="btn btn-primary">Cập nhật hồ sơ</a>
-                    </div>
-                </div>
-            </div>
-            
-            {% if current_user.role.role_name in ['Admin', 'Content Manager'] %}
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Quản lý người dùng</h5>
-                        <p class="card-text">Xem và quản lý danh sách người dùng trong hệ thống.</p>
-                        <a href="{{ url_for('main.users') }}" class="btn btn-primary">Quản lý người dùng</a>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
-            
-            {% if current_user.role.role_name == 'Admin' %}
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Quản lý quyền</h5>
-                        <p class="card-text">Quản lý các quyền trong hệ thống.</p>
-                        <a href="{{ url_for('main.admin_roles') }}" class="btn btn-primary">Quản lý quyền</a>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
-        </div>
-        
-        {% if current_user.role.role_name == 'Admin' %}
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Thống kê hệ thống</h5>
-                        <div class="row mt-3">
-                            <div class="col-md-4">
-                                <div class="text-center">
-                                    <h3>{{ stats.total_users }}</h3>
-                                    <p>Tổng số người dùng</p>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="text-center">
-                                    <h3>{{ stats.new_users }}</h3>
-                                    <p>Người dùng mới hôm nay</p>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="text-center">
-                                    <h3>{{ stats.admin_count }}</h3>
-                                    <p>Số lượng Admin</p>
-                                </div>
-                            </div>
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stats-card primary h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Tổng số người dùng</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.total_users }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        {% endif %}
-    {% else %}
-        <div class="row">
-            <div class="col-md-6 offset-md-3 text-center">
-                <h2>Chào mừng đến với Hệ thống Quản lý Người dùng</h2>
-                <p class="lead">Vui lòng đăng nhập hoặc đăng ký để tiếp tục.</p>
-                <div class="mt-4">
-                    <a href="{{ url_for('main.login') }}" class="btn btn-primary me-2">Đăng nhập</a>
-                    <a href="{{ url_for('main.register') }}" class="btn btn-outline-primary">Đăng ký</a>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stats-card success h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Người dùng mới (Hôm nay)</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.new_users }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-user-plus fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stats-card info h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Số Admin</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.admin_count }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-user-shield fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-history"></i> Hoạt động gần đây
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Thời gian</th>
+                                    <th>Người dùng</th>
+                                    <th>Hành động</th>
+                                    <th>Mô tả</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for activity in recent_activities %}
+                                <tr>
+                                    <td>{{ activity.timestamp.strftime('%d/%m/%Y %H:%M') }}</td>
+                                    <td>{{ activity.user.username }}</td>
+                                    <td>{{ activity.action }}</td>
+                                    <td>{{ activity.description }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <h1 class="display-4">Chào mừng đến với User Management System</h1>
+        <p class="lead">Hệ thống quản lý người dùng hiện đại và dễ sử dụng</p>
+        <hr class="my-4">
+        <p>Vui lòng đăng nhập hoặc đăng ký để sử dụng hệ thống</p>
+        <a class="btn btn-primary btn-lg me-2" href="{{ url_for('main.login') }}" role="button">
+            <i class="fas fa-sign-in-alt"></i> Đăng nhập
+        </a>
+        <a class="btn btn-success btn-lg" href="{{ url_for('main.register') }}" role="button">
+            <i class="fas fa-user-plus"></i> Đăng ký
+        </a>
+    </div>
     {% endif %}
 </div>
 {% endblock %}
